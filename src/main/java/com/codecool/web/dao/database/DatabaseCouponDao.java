@@ -41,7 +41,7 @@ public final class DatabaseCouponDao extends AbstractDao implements CouponDao {
     }
 
     @Override
-    public Coupon add(String name, int percentage) throws SQLException {
+    public Coupon add(String name,int userId, int percentage) throws SQLException {
         if (name == null || "".equals(name)) {
             throw new IllegalArgumentException("Name cannot be null or empty");
         }
@@ -50,10 +50,11 @@ public final class DatabaseCouponDao extends AbstractDao implements CouponDao {
         }
         boolean autoCommit = connection.getAutoCommit();
         connection.setAutoCommit(false);
-        String sql = "INSERT INTO coupons (name, percentage) VALUES (?, ?)";
+        String sql = "INSERT INTO coupons (name, user_id, percentage ) VALUES (?, ?, ?)";
         try (PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);) {
             statement.setString(1, name);
-            statement.setInt(2, percentage);
+            statement.setInt(2, userId);
+            statement.setInt(3, percentage);
             executeInsert(statement);
             int id = fetchGeneratedId(statement);
             connection.commit();
@@ -66,11 +67,12 @@ public final class DatabaseCouponDao extends AbstractDao implements CouponDao {
         }
     }
 
+    @Override
     public void add(int couponId, int... shopIds) throws SQLException {
         boolean autoCommit = connection.getAutoCommit();
         connection.setAutoCommit(false);
         String sql = "INSERT INTO coupons_shops (coupon_id, shop_id) VALUES (?, ?)";
-        try (PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);) {
+        try (PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             statement.setInt(1, couponId);
             for (int shopId : shopIds) {
                 statement.setInt(2, shopId);
@@ -107,7 +109,7 @@ public final class DatabaseCouponDao extends AbstractDao implements CouponDao {
     public List<Coupon> findAllByUserIdNStore(int userId, int storeId) throws SQLException {
         List<Coupon> coupons = new ArrayList<>();
 
-        String sql = "SELECT c.name, c.percentage FROM users AS u " +
+        String sql = "SELECT c.name, c.percentage,c.id FROM users AS u " +
             "INNER JOIN coupons AS c ON u.id = c.user_id " +
             "INNER JOIN coupons_shops AS cs ON cs.coupon_id = c.id " +
             "WHERE u.id = ? AND cs.shop_id = ?;";
