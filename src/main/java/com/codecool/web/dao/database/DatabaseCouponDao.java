@@ -89,7 +89,7 @@ public final class DatabaseCouponDao extends AbstractDao implements CouponDao {
     public List<Coupon> findAllByUserId(int userId) throws SQLException {
         List<Coupon> coupons = new ArrayList<>();
 
-        String sql = "SELECT name, percentage FROM users " +
+        String sql = "SELECT name, percentage,coupons.id FROM users " +
             "INNER JOIN coupons ON users.id = coupons.user_id " +
             "WHERE users.id = ?;";
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
