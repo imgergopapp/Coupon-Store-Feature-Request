@@ -22,6 +22,7 @@ public final class SimpleCouponService implements CouponService {
 
     public SimpleCouponService(CouponDao couponDao) {
         this.couponDao = couponDao;
+        this.shopDao = null;
     }
 
     @Override
@@ -30,7 +31,7 @@ public final class SimpleCouponService implements CouponService {
     }
 
     @Override
-    public List<Coupon> getCouponsByUser(int userId) throws SQLException{
+    public List<Coupon> getCouponsByUser(int userId) throws SQLException,ServiceException{
         return couponDao.findAllByUserId(userId);
     }
 

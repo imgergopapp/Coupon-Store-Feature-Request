@@ -19,6 +19,6 @@ public interface CouponService {
 
     List<Shop> getCouponShops(String id) throws SQLException, ServiceException;
 
-    List<Coupon> getCouponsByUser(int userId) throws SQLException ;
+    List<Coupon> getCouponsByUser(int userId) throws SQLException,ServiceException ;
 
     }
