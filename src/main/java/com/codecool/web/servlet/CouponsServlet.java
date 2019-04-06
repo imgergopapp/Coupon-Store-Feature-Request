@@ -5,6 +5,7 @@ import com.codecool.web.dao.ShopDao;
 import com.codecool.web.dao.database.DatabaseCouponDao;
 import com.codecool.web.dao.database.DatabaseShopDao;
 import com.codecool.web.model.Coupon;
+import com.codecool.web.model.User;
 import com.codecool.web.service.CouponService;
 import com.codecool.web.service.exception.ServiceException;
 import com.codecool.web.service.simple.SimpleCouponService;
@@ -23,22 +24,27 @@ public final class CouponsServlet extends AbstractServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        User user = (User) req.getSession().getAttribute("user");
         try (Connection connection = getConnection(req.getServletContext())) {
             CouponDao couponDao = new DatabaseCouponDao(connection);
             ShopDao shopDao = new DatabaseShopDao(connection);
             CouponService couponService = new SimpleCouponService(couponDao, shopDao);
 
-            List<Coupon> coupons = couponService.getCoupons();
+            List<Coupon> coupons = couponService.getCouponsByUser(user.getId());
 
             req.setAttribute("coupons", coupons);
             req.getRequestDispatcher("coupons.jsp").forward(req, resp);
         } catch (SQLException ex) {
             throw new ServletException(ex);
         }
+        catch (ServiceException ex) {
+            req.setAttribute("error", ex.getMessage());
+        }
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        User user = (User) req.getSession().getAttribute("user");
         try (Connection connection = getConnection(req.getServletContext())) {
             CouponDao couponDao = new DatabaseCouponDao(connection);
             ShopDao shopDao = new DatabaseShopDao(connection);
@@ -47,7 +53,7 @@ public final class CouponsServlet extends AbstractServlet {
             String name = req.getParameter("name");
             String percentage = req.getParameter("percentage");
 
-            Coupon coupon = couponService.addCoupon(name, percentage);
+            Coupon coupon = couponService.addCoupon(name,user.getId(), percentage);
 
             String info = String.format("Coupon %s with id %s has been created", coupon.getName(), coupon.getId());
             req.setAttribute("info", info);
