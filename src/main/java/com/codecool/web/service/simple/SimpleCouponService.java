@@ -20,6 +20,10 @@ public final class SimpleCouponService implements CouponService {
         this.shopDao = shopDao;
     }
 
+    public SimpleCouponService(CouponDao couponDao) {
+        this.couponDao = couponDao;
+    }
+
     @Override
     public List<Coupon> getCoupons() throws SQLException {
         return couponDao.findAll();
