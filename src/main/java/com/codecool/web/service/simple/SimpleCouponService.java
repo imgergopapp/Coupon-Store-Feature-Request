@@ -36,6 +36,11 @@ public final class SimpleCouponService implements CouponService {
     }
 
     @Override
+    public List<Coupon> getCouponsByUserNStore(int userId, int storeId) throws SQLException,ServiceException{
+        return couponDao.findAllByUserIdNStore(userId,storeId);
+    }
+
+    @Override
     public Coupon getCoupon(String id) throws SQLException, ServiceException {
         try {
             return couponDao.findById(Integer.parseInt(id));
